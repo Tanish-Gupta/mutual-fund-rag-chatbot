@@ -1,0 +1,15 @@
+.env
+.env.local
+data/raw/
+data/manifests/
+data/processed/
+data/index/
+data/logs/*.log
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mf-rag"
+version = "0.1.0"
+description = "Mutual fund RAG: phased ingest, index, chat API, UI, and pipeline orchestration"
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "pydantic>=2.0",
+    "fastapi>=0.100",
+    "uvicorn[standard]>=0.22",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+browser = ["playwright>=1.40"]
+vector = [
+    "chromadb>=0.4.22",
+    "sentence-transformers>=2.2.2",
+    "pinecone-client>=5.0.0",
+]
+
+[project.scripts]
+mf-ingest = "mf_ingest.cli:main"
+mf-index = "mf_index.cli:main"
+mf-chat = "mf_chat.cli:main"
+mf-pipeline = "mf_pipeline.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["phase1/src", "phase2/src", "phase3/src", "phase5/src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["phase1/src", "phase2/src", "phase3/src", "phase5/src"]

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>FundFacts — Mutual fund Q&A</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --header: #5b3ead;
+      --header-deep: #4a3291;
+      --bubble-user: #7c3aed;
+      --bubble-user-hover: #6d28d9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --online: #22c55e;
+      --surface: #ffffff;
+      --canvas: #f1f5f9;
+      --card-border: #e2e8f0;
+      --accent-soft: #ede9fe;
+      --font: "Plus Jakarta Sans", system-ui, sans-serif;
+      --content-max: 56rem;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: var(--canvas);
+    }
+
+    /* Full-viewport app shell */
+    .shell {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      width: 100%;
+      max-width: 100%;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px clamp(16px, 3vw, 32px);
+      background: linear-gradient(135deg, var(--header) 0%, var(--header-deep) 100%);
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .avatar svg { width: 26px; height: 26px; }
+
+    .header-text { flex: 1; min-width: 0; }
+    .header-text h1 {
+      margin: 0;
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      opacity: 0.92;
+      margin-top: 2px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--online);
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.35);
+    }
+
+    .index-updated {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.72rem;
+      opacity: 0.88;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: background 0.15s;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.22); }
+    .icon-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: clamp(16px, 2.5vw, 28px) clamp(16px, 4vw, 40px);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: linear-gradient(180deg, #f8fafc 0%, var(--canvas) 40%, #e2e8f0 100%);
+    }
+
+    .messages-inner {
+      width: 100%;
+      max-width: var(--content-max);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .turn {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 100%;
+    }
+
+    .turn.bot { align-items: flex-start; }
+    .turn.user { align-items: flex-end; }
+
+    .bot-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding-left: 48px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .turn.user .row { flex-direction: row-reverse; }
+
+    .mini-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .mini-avatar svg { width: 18px; height: 18px; opacity: 0.55; }
+
+    .bubble-bot {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .bot-card {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: clamp(16px, 2vw, 22px) clamp(18px, 2.5vw, 24px);
+      box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 4px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    .answer-p {
+      margin: 0 0 0.85rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+    .answer-p:last-child { margin-bottom: 0; }
+
+    .answer-list {
+      margin: 0 0 0.85rem;
+      padding-left: 1.25rem;
+      color: var(--text);
+      font-size: 0.93rem;
+      line-height: 1.55;
+    }
+    .answer-list:last-child { margin-bottom: 0; }
+    .answer-list li {
+      margin: 0.4rem 0;
+      padding-left: 0.25rem;
+    }
+    .answer-list li::marker {
+      color: var(--bubble-user);
+    }
+
+    .inline-link {
+      color: var(--header);
+      font-weight: 500;
+      word-break: break-all;
+      text-decoration: underline;
+      text-decoration-color: rgba(91, 62, 173, 0.35);
+      text-underline-offset: 2px;
+    }
+    .inline-link:hover {
+      color: var(--header-deep);
+    }
+
+    .bubble-user {
+      max-width: min(85%, 42rem);
+      padding: 12px 18px;
+      border-radius: 20px 20px 6px 20px;
+      background: var(--bubble-user);
+      color: #fff;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      font-weight: 500;
+      box-shadow: 0 2px 12px rgba(124, 58, 237, 0.25);
+    }
+
+    .turn.user .row .bubble-user {
+      border-radius: 20px 20px 20px 6px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-left: 48px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--header-deep);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .chip:hover {
+      border-color: var(--bubble-user);
+      background: var(--accent-soft);
+      box-shadow: 0 2px 8px rgba(124, 58, 237, 0.12);
+    }
+    .chip:active { transform: scale(0.98); }
+    .chip:focus-visible { outline: 2px solid var(--bubble-user); outline-offset: 2px; }
+
+    .chips-label {
+      width: 100%;
+      padding-left: 48px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+
+    .sources-block {
+      padding-left: 48px;
+      width: 100%;
+      max-width: var(--content-max);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .sources-panel {
+      background: var(--surface);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 18px;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+    }
+    .sources-panel h3 {
+      margin: 0 0 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .source-grid {
+      display: grid;
+      gap: 10px;
+    }
+    @media (min-width: 640px) {
+      .source-grid.multi {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      }
+    }
+    .source-tile {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .source-tile:hover {
+      border-color: #c4b5fd;
+      background: #faf5ff;
+    }
+    .source-tile .source-scheme {
+      display: block;
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.35;
+    }
+    .source-tile a {
+      font-size: 0.78rem;
+      color: var(--header);
+      word-break: break-all;
+      font-weight: 500;
+    }
+
+    .typing {
+      display: flex;
+      gap: 5px;
+      padding: 8px 0 0 48px;
+    }
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    .composer-wrap {
+      flex-shrink: 0;
+      padding: 14px clamp(16px, 4vw, 40px) 18px;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+    }
+    .composer-inner-wrap {
+      max-width: var(--content-max);
+      margin: 0 auto;
+    }
+
+    .composer-inner {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      background: #f1f5f9;
+      border-radius: 16px;
+      padding: 10px 10px 10px 18px;
+      border: 1px solid transparent;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .composer-inner:focus-within {
+      border-color: var(--bubble-user);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+      background: #fff;
+    }
+
+    .composer textarea {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.95rem;
+      resize: none;
+      min-height: 44px;
+      max-height: 160px;
+      line-height: 1.5;
+      padding: 10px 0;
+    }
+    .composer textarea:focus { outline: none; }
+    .composer textarea::placeholder { color: #94a3b8; }
+
+    .send {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: none;
+      background: var(--bubble-user);
+      color: #fff;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .send:hover { background: var(--bubble-user-hover); }
+    .send:active { transform: scale(0.97); }
+    .send:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.45;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 50;
+    }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+
+    .drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: min(340px, 92vw);
+      background: #fff;
+      z-index: 51;
+      padding: 24px;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      box-shadow: -8px 0 32px rgba(0,0,0,0.12);
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer h2 {
+      margin: 0 0 18px;
+      font-size: 1.05rem;
+    }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+    .drawer-close {
+      margin-top: 24px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: var(--header);
+      color: #fff;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell" id="shell">
+    <header class="header">
+      <div class="avatar" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8.5 2 6 4.5 6 8v2H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V8c0-3.5-2.5-6-6-6zm0 2c2.2 0 4 1.8 4 4v2H8V8c0-2.2 1.8-4 4-4z" fill="white" opacity=".95"/>
+          <circle cx="9" cy="13" r="1.2" fill="#1e1b4b"/>
+          <circle cx="15" cy="13" r="1.2" fill="#1e1b4b"/>
+          <path d="M9 16.5c.8 1 2.2 1.5 3 1.5s2.2-.5 3-1.5" stroke="#1e1b4b" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>FundFacts</h1>
+        <div class="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Online — index-grounded answers</span>
+        </div>
+        <span class="index-updated" id="index-updated" title="">Loading index date…</span>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="icon-btn" id="btn-settings" title="Connection settings" aria-label="Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="btn-clear" title="Clear conversation" aria-label="Clear chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="messages" id="messages-scroll">
+      <div class="messages-inner" id="messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+    </div>
+
+    <div class="composer-wrap composer">
+      <div class="composer-inner-wrap">
+        <div class="composer-inner">
+          <textarea id="input" rows="1" placeholder="Ask about expense ratio, NAV, exit load, SIP minimum…" autocomplete="off"></textarea>
+          <button type="button" class="send" id="send" aria-label="Send message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+        <p class="footer-note">Answers come from indexed scheme pages only — friendly facts, not investment advice.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <h2>Connection</h2>
+    <div class="field">
+      <label for="api">API base URL</label>
+      <input id="api" type="text" value="http://127.0.0.1:8000" autocomplete="url" />
+    </div>
+    <div class="field">
+      <label for="run">ingest_run_id (optional)</label>
+      <input id="run" type="text" placeholder="Blank = latest index" />
+    </div>
+    <button type="button" class="drawer-close" id="drawer-done">Done</button>
+  </aside>
+
+  <script>
+    (function () {
+      const BOT = "FundFacts";
+      const messagesEl = document.getElementById("messages");
+      const messagesScroll = document.getElementById("messages-scroll");
+      const input = document.getElementById("input");
+      const sendBtn = document.getElementById("send");
+      const apiInput = document.getElementById("api");
+      const runInput = document.getElementById("run");
+      const drawer = document.getElementById("drawer");
+      const overlay = document.getElementById("overlay");
+
+      const PROMPTS_INITIAL = [
+        "What is the expense ratio?",
+        "Minimum SIP or lumpsum?",
+        "What is the exit load?",
+        "List all indexed fund links",
+        "Fund benchmark and objective",
+      ];
+
+      const LIST_LINE = /^(\u2014|—|-|\*|•|\d+\.)\s+/;
+
+      const botSvg = `
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+          <path d="M12 4c-2.8 0-5 2.2-5 5v1.5H6a1.5 1.5 0 00-1.5 1.5v6A1.5 1.5 0 006 19.5h12a1.5 1.5 0 001.5-1.5v-6A1.5 1.5 0 0018 10.5h-1V9c0-2.8-2.2-5-5-5z" stroke="currentColor" stroke-width="1.3"/>
+        </svg>`;
+
+      function scrollToBottom() {
+        messagesScroll.scrollTop = messagesScroll.scrollHeight;
+      }
+
+      async function refreshIndexMeta() {
+        const el = document.getElementById("index-updated");
+        if (!el) return;
+        const base = apiInput.value.replace(/\/$/, "");
+        el.textContent = "Loading index date…";
+        el.removeAttribute("title");
+        try {
+          const r = await fetch(base + "/api/index-meta");
+          const d = await r.json();
+          if (!r.ok) throw new Error("bad response");
+          if (d.last_updated_iso) {
+            const dt = new Date(d.last_updated_iso);
+            const fmt = dt.toLocaleString(undefined, {
+              dateStyle: "medium",
+              timeStyle: "short",
+            });
+            const shortId = d.ingest_run_id ? d.ingest_run_id.slice(0, 8) + "…" : "";
+            el.textContent =
+              "Index last updated: " + fmt + (shortId ? " · run " + shortId : "");
+            if (d.ingest_run_id) {
+              el.setAttribute("title", "ingest_run_id: " + d.ingest_run_id);
+            }
+          } else {
+            el.textContent = "No search index yet — run mf-pipeline to build one.";
+          }
+        } catch {
+          el.textContent = "Couldn’t load index date — check API URL in settings.";
+        }
+      }
+
+      function linkifyToFragment(str) {
+        const frag = document.createDocumentFragment();
+        const re = /(https?:\/\/[^\s<>"']+)/gi;
+        let last = 0;
+        let m;
+        while ((m = re.exec(str)) !== null) {
+          if (m.index > last) {
+            frag.appendChild(document.createTextNode(str.slice(last, m.index)));
+          }
+          let href = m[1].replace(/[),.;:]+$/g, "");
+          const a = document.createElement("a");
+          a.href = href;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.className = "inline-link";
+          a.textContent = href;
+          frag.appendChild(a);
+          last = re.lastIndex;
+        }
+        if (last < str.length) {
+          frag.appendChild(document.createTextNode(str.slice(last)));
+        }
+        return frag;
+      }
+
+      /** Structured paragraphs + bullet / numbered lists + clickable URLs */
+      function formatBotAnswer(container, raw) {
+        container.innerHTML = "";
+        const card = document.createElement("div");
+        card.className = "bot-card";
+        const text = String(raw || "").replace(/\r\n/g, "\n");
+        const lines = text.split("\n");
+        let i = 0;
+
+        function flushParagraph(acc) {
+          const t = acc.join(" ").trim();
+          if (!t) return;
+          const p = document.createElement("p");
+          p.className = "answer-p";
+          p.appendChild(linkifyToFragment(t));
+          card.appendChild(p);
+        }
+
+        let acc = [];
+        while (i < lines.length) {
+          const rawLine = lines[i];
+          const line = rawLine.trim();
+          if (!line) {
+            flushParagraph(acc);
+            acc = [];
+            i++;
+            continue;
+          }
+          if (LIST_LINE.test(line)) {
+            flushParagraph(acc);
+            acc = [];
+            const ul = document.createElement("ul");
+            ul.className = "answer-list";
+            while (i < lines.length) {
+              const L = lines[i].trim();
+              if (!L) break;
+              if (!LIST_LINE.test(L)) break;
+              const li = document.createElement("li");
+              li.appendChild(linkifyToFragment(L.replace(LIST_LINE, "")));
+              ul.appendChild(li);
+              i++;
+            }
+            card.appendChild(ul);
+            continue;
+          }
+          acc.push(line);
+          i++;
+        }
+        flushParagraph(acc);
+
+        if (!card.childNodes.length) {
+          const p = document.createElement("p");
+          p.className = "answer-p";
+          p.textContent = "(No text)";
+          card.appendChild(p);
+        }
+        container.appendChild(card);
+      }
+
+      function normalizeSourceList(data) {
+        if (Array.isArray(data.sources) && data.sources.length) {
+          return data.sources.map((s) => ({
+            url: s.url,
+            scheme_name: s.scheme_name || null,
+          }));
+        }
+        const urls = data.source_urls || [];
+        return urls.map((u) => ({ url: u, scheme_name: null }));
+      }
+
+      /**
+       * @param {string} text
+       * @param {{ chips?: string[], chipsLabel?: string, sourceList?: {url:string, scheme_name?:string|null}[] }} options
+       */
+      function addBotMessage(text, options = {}) {
+        const { chips = [], chipsLabel = "Quick prompts", sourceList = [] } = options;
+
+        const wrap = document.createElement("div");
+        wrap.className = "msg-bot-wrap";
+        wrap.style.cssText = "display:flex;flex-direction:column;gap:10px;width:100%;max-width:100%;";
+
+        const turn = document.createElement("div");
+        turn.className = "turn bot";
+        turn.innerHTML = `
+          <div class="bot-label">${BOT}</div>
+          <div class="row">
+            <div class="mini-avatar" aria-hidden="true">${botSvg}</div>
+            <div class="bubble-bot"></div>
+          </div>
+        `;
+        formatBotAnswer(turn.querySelector(".bubble-bot"), text);
+        wrap.appendChild(turn);
+
+        if (sourceList.length) {
+          const src = document.createElement("div");
+          src.className = "sources-block";
+          const panel = document.createElement("div");
+          panel.className = "sources-panel";
+          const h3 = document.createElement("h3");
+          h3.textContent = sourceList.length === 1 ? "Source" : `Sources · ${sourceList.length}`;
+          panel.appendChild(h3);
+          const grid = document.createElement("div");
+          grid.className = "source-grid" + (sourceList.length > 1 ? " multi" : "");
+          sourceList.forEach((s) => {
+            const tile = document.createElement("div");
+            tile.className = "source-tile";
+            if (s.scheme_name) {
+              const sn = document.createElement("span");
+              sn.className = "source-scheme";
+              sn.textContent = s.scheme_name;
+              tile.appendChild(sn);
+            }
+            const a = document.createElement("a");
+            a.href = s.url;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.textContent = s.url;
+            tile.appendChild(a);
+            grid.appendChild(tile);
+          });
+          panel.appendChild(grid);
+          src.appendChild(panel);
+          wrap.appendChild(src);
+        }
+
+        if (chips.length) {
+          const label = document.createElement("div");
+          label.className = "chips-label";
+          label.textContent = chipsLabel;
+          wrap.appendChild(label);
+          const chipRow = document.createElement("div");
+          chipRow.className = "chips";
+          chips.forEach((labelText) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "chip";
+            b.textContent = labelText;
+            b.addEventListener("click", () => sendUserMessage(labelText));
+            chipRow.appendChild(b);
+          });
+          wrap.appendChild(chipRow);
+        }
+
+        messagesEl.appendChild(wrap);
+        scrollToBottom();
+      }
+
+      function addUserMessage(text) {
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "width:100%;max-width:100%;display:flex;justify-content:flex-end;";
+        const turn = document.createElement("div");
+        turn.className = "turn user";
+        turn.innerHTML = `
+          <div class="row">
+            <div class="bubble-user"></div>
+          </div>
+        `;
+        turn.querySelector(".bubble-user").textContent = text;
+        wrap.appendChild(turn);
+        messagesEl.appendChild(wrap);
+        scrollToBottom();
+      }
+
+      function showTyping() {
+        const el = document.createElement("div");
+        el.className = "typing";
+        el.id = "typing-indicator";
+        el.innerHTML = "<span></span><span></span><span></span>";
+        messagesEl.appendChild(el);
+        scrollToBottom();
+      }
+
+      function hideTyping() {
+        document.getElementById("typing-indicator")?.remove();
+      }
+
+      async function sendUserMessage(message) {
+        const trimmed = message.trim();
+        if (!trimmed) return;
+
+        addUserMessage(trimmed);
+        input.value = "";
+        input.style.height = "auto";
+        sendBtn.disabled = true;
+        showTyping();
+
+        const base = apiInput.value.replace(/\/$/, "");
+        const run = runInput.value.trim();
+
+        try {
+          const r = await fetch(base + "/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              message: trimmed,
+              ingest_run_id: run || null,
+            }),
+          });
+          const data = await r.json();
+          hideTyping();
+
+          if (!r.ok) {
+            addBotMessage(data.detail || r.statusText || "Request failed.", {
+              sourceList: [],
+            });
+            return;
+          }
+
+          const answer = data.answer || "(empty response)";
+          addBotMessage(answer, {
+            sourceList: normalizeSourceList(data),
+          });
+        } catch (e) {
+          hideTyping();
+          addBotMessage(
+            "Could not reach the API. Check the server is running (e.g. mf-chat on port 8000) and the URL in settings.",
+            { sourceList: [] }
+          );
+        } finally {
+          sendBtn.disabled = false;
+          input.focus();
+        }
+      }
+
+      function openDrawer() {
+        drawer.classList.add("open");
+        overlay.classList.add("open");
+        drawer.setAttribute("aria-hidden", "false");
+      }
+      function closeDrawer() {
+        drawer.classList.remove("open");
+        overlay.classList.remove("open");
+        drawer.setAttribute("aria-hidden", "true");
+        refreshIndexMeta();
+      }
+
+      document.getElementById("btn-settings").addEventListener("click", openDrawer);
+      document.getElementById("drawer-done").addEventListener("click", closeDrawer);
+      overlay.addEventListener("click", closeDrawer);
+
+      document.getElementById("btn-clear").addEventListener("click", () => {
+        if (!confirm("Clear this conversation?")) return;
+        messagesEl.innerHTML = "";
+        seedWelcome();
+      });
+
+      sendBtn.addEventListener("click", () => sendUserMessage(input.value));
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendUserMessage(input.value);
+        }
+      });
+
+      input.addEventListener("input", () => {
+        input.style.height = "auto";
+        input.style.height = Math.min(input.scrollHeight, 160) + "px";
+      });
+
+      function seedWelcome() {
+        addBotMessage(
+          "Hi, I’m FundFacts. Ask me plain questions about the mutual fund pages we’ve indexed — things like expense ratio, NAV, exit load, SIP minimums, benchmarks, or risk labels. I’ll stick to what’s on those pages (no tips on what you should buy). What can I look up for you?",
+          { chips: PROMPTS_INITIAL, chipsLabel: "Quick prompts", sourceList: [] }
+        );
+      }
+
+      seedWelcome();
+      refreshIndexMeta();
+      input.focus();
+    })();
+  </script>
+</body>
+</html>
