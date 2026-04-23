@@ -29,6 +29,10 @@ The repo is wired for **[Vercel](https://vercel.com/)** using the **FastAPI** Py
 
 If you ship **`index_manifest.json`** with `"backend": "pinecone"`, add **`pinecone-client`** (and **`sentence-transformers`** for query embeddings) to `requirements-vercel.txt` and set Pinecone secrets — see `mf_index/retrieval.py`.
 
+## Build shows `externally-managed-environment` (pip)
+
+Vercel’s build Python is managed by **`uv`**. A custom **`pip install -r …`** hits PEP 668 and fails. This repo uses **`uv pip install -r requirements-vercel.txt`** in `vercel.json` instead.
+
 ## Build shows `main.py` / `functions` error
 
 That message only appears when Vercel is building an **older commit** (before `api/index.py` existed), or when **Project Settings** override `vercel.json`:
