@@ -3,6 +3,16 @@
   "framework": null,
   "buildCommand": "bash scripts/vercel_build.sh",
   "installCommand": "uv pip install --system -r requirements-vercel.txt",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/health",
+      "destination": "/api/index"
+    }
+  ],
   "functions": {
     "api/**/*.py": {
       "maxDuration": 60,
