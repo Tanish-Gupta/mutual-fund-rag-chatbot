@@ -1,5 +1,5 @@
 # Slim deps for Vercel serverless (chat API + lexical retrieval from chunks.jsonl).
-# Installed with: uv pip install -r requirements-vercel.txt (see vercel.json — do not use plain `pip` on Vercel; PEP 668).
+# Installed with: uv pip install --system -r requirements-vercel.txt (see vercel.json).
 # For vector search + Pinecone, add: pinecone-client>=5, sentence-transformers>=2.2.2
 # and ship data/index/<run_id>/index_manifest.json (see docs/VERCEL.md).
 

@@ -31,7 +31,7 @@ If you ship **`index_manifest.json`** with `"backend": "pinecone"`, add **`pinec
 
 ## Build shows `externally-managed-environment` (pip)
 
-Vercel’s build Python is managed by **`uv`**. A custom **`pip install -r …`** hits PEP 668 and fails. This repo uses **`uv pip install -r requirements-vercel.txt`** in `vercel.json` instead.
+Vercel’s build Python is managed by **`uv`**. Do not use plain **`pip install -r …`** (PEP 668). This repo uses **`uv pip install --system -r requirements-vercel.txt`** so packages install into the build interpreter without requiring a pre-created `uv venv`.
 
 ## Build shows `main.py` / `functions` error
 
