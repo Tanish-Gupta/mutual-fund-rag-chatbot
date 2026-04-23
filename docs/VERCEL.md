@@ -29,6 +29,14 @@ The repo is wired for **[Vercel](https://vercel.com/)** using the **FastAPI** Py
 
 If you ship **`index_manifest.json`** with `"backend": "pinecone"`, add **`pinecone-client`** (and **`sentence-transformers`** for query embeddings) to `requirements-vercel.txt` and set Pinecone secrets — see `mf_index/retrieval.py`.
 
+## Build shows `main.py` / `functions` error
+
+That message only appears when Vercel is building an **older commit** (before `api/index.py` existed), or when **Project Settings** override `vercel.json`:
+
+1. In GitHub, confirm **`main`** includes commit **`0c1a253`** or newer (search the repo’s commit history for “move ASGI entry to api”).
+2. In Vercel → **Deployments** → open the failed deploy and check **Source** → **Commit**. It must **not** be `d3cdc66`. Use **Redeploy** on the latest deployment, or **Deployments → … → Redeploy** after pushing.
+3. Vercel → **Project → Settings → General / Build & Development**: remove any custom **Install Command** / **Build Command** / **Root Directory** that point at an old fork or branch, unless you intend them.
+
 ## Limits
 
 - [Vercel Functions limits](https://vercel.com/docs/functions/limitations) (timeout, bundle size) apply. Chroma’s on-disk DB is **not** used on Vercel; use **Pinecone** + manifest if you need dense retrieval in the cloud.
