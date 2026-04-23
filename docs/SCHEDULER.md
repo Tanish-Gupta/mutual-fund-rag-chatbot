@@ -1,6 +1,8 @@
-# Daily scheduler (12:00 local) — ingest + index
+# Daily scheduler (10:00 local for launchd/cron; 10:00 IST for GitHub Actions) — ingest + index
 
 Phase 5 is automated by running `scripts/run_daily_pipeline.sh` once per day. It executes the same flow as `mf-pipeline`: fetch default seed URLs, parse, then `mf-index build` (Chroma by default). Logs append under `data/logs/`.
+
+To print the documented schedule (GitHub cron + summary): `mf-pipeline --schedule-info` (or `python -m mf_pipeline --schedule-info` with `PYTHONPATH` set).
 
 **Requirements on the host:** `python3` with project deps (`pip install -e ".[vector]"` and optional `pip install -e ".[browser]"` if you use `MF_PIPELINE_BROWSER=1`), and network access to allowlisted sites.
 
@@ -10,7 +12,7 @@ Phase 5 is automated by running `scripts/run_daily_pipeline.sh` once per day. It
 
 Workflow: [`.github/workflows/daily-pipeline.yml`](../.github/workflows/daily-pipeline.yml)
 
-- **Triggers:** daily at **06:30 UTC** (≈ **12:00 IST**) and **manual** (`workflow_dispatch`).
+- **Triggers:** daily at **04:30 UTC** (= **10:00 India Standard Time**, IST has no DST) and **manual** (`workflow_dispatch`). Cron: `30 4 * * *` — must match `phase5/src/mf_pipeline/schedule.py` → `GITHUB_ACTIONS_CRON_UTC`.
 - **Steps:** Python 3.12 → `pip install -e ".[vector]"` → `python -m mf_pipeline --index-backend chroma` (adds `--browser` when `MF_PIPELINE_BROWSER=1`).
 - **Artifacts:** uploads `data/manifests/*.json`, `data/index/*/index_manifest.json`, and `data/index/*/chunks.jsonl` (retained 14 days). Vector DB dirs under `data/index/` stay on the runner only (large); download the artifact if you need manifests/chunks for debugging.
 
@@ -73,7 +75,7 @@ chmod +x scripts/run_daily_pipeline.sh
 crontab -e
 ```
 
-Add a line from `deploy/cron.mf-rag.example` (adjust the path). `0 12 * * *` means **12:00 every day** in the server’s local timezone.
+Add a line from `deploy/cron.mf-rag.example` (adjust the path). `0 10 * * *` means **10:00 every day** in the server’s local timezone.
 
 ---
 

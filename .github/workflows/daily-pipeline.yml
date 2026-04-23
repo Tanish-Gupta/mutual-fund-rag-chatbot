@@ -1,12 +1,13 @@
 # Phase 5: scheduled ingest + vector index (same as `mf-pipeline` / `scripts/run_daily_pipeline.sh`).
-# Default schedule: 06:30 UTC ≈ 12:00 IST. Adjust cron if you want a different wall clock.
+# 10:00 India Standard Time (IST) == 04:30 UTC (IST has no DST). Keep cron in sync with
+# `phase5/src/mf_pipeline/schedule.py` → GITHUB_ACTIONS_CRON_UTC.
 # Data paths are gitignored; this job uploads an artifact with manifests + chunk audit for inspection.
 
 name: Daily MF pipeline (Phase 5)
 
 on:
   schedule:
-    - cron: "30 6 * * *"
+    - cron: "30 4 * * *"
   workflow_dispatch:
 
 concurrency:

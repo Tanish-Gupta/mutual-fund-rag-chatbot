@@ -12,7 +12,7 @@ Facts-only Q&A over **indexed** mutual fund scheme pages (IndMoney and similar).
 | **2 — Index** | Chunk → embed (`sentence-transformers`) → **Chroma** (default) or **Pinecone** |
 | **3 — API** | FastAPI `POST /api/chat`, `GET /api/index-meta`, `GET /health` |
 | **4 — UI** | Static `phase4/web/chat.html` (full-width chat, quick prompts, sources) |
-| **5 — Pipeline** | `mf-pipeline` = ingest then index; optional **launchd/cron** at 12:00 local |
+| **5 — Pipeline** | `mf-pipeline` = ingest then index; optional **launchd/cron** at 10:00 local; **GitHub Actions** at 10:00 IST |
 
 ## Requirements
 
@@ -94,7 +94,7 @@ pytest tests/ -q
 
 ## Scheduler
 
-To rebuild the index **every day at 12:00** (local time), see **[docs/SCHEDULER.md](docs/SCHEDULER.md)** (`scripts/run_daily_pipeline.sh`, launchd / cron examples).
+To rebuild the index **every day at 10:00** (local time for launchd/cron, IST for GitHub Actions), see **[docs/SCHEDULER.md](docs/SCHEDULER.md)** (`scripts/run_daily_pipeline.sh`, launchd / cron, Actions).
 
 ## Compliance & safety
 

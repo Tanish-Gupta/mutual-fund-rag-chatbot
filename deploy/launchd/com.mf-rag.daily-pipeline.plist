@@ -15,11 +15,11 @@
     <string>PROJECT_ROOT/scripts/run_daily_pipeline.sh</string>
   </array>
 
-  <!-- Every day at 12:00 in the Mac’s local timezone -->
+  <!-- Every day at 10:00 in the Mac’s local timezone -->
   <key>StartCalendarInterval</key>
   <dict>
     <key>Hour</key>
-    <integer>12</integer>
+    <integer>10</integer>
     <key>Minute</key>
     <integer>0</integer>
   </dict>

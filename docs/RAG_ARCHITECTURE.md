@@ -266,9 +266,9 @@ flowchart TD
 
 - Admin endpoint or CLI: same orchestrator with `trigger = manual` for on-demand refresh after adding a new scheme URL.
 
-### 5.4 Implemented daily schedule (12:00 local)
+### 5.4 Implemented daily schedule (10:00)
 
-This repo includes **`scripts/run_daily_pipeline.sh`** (runs `mf-pipeline`) plus **macOS `launchd`** and **cron** examples under `deploy/`. Step-by-step setup: **[SCHEDULER.md](./SCHEDULER.md)**.
+This repo includes **`scripts/run_daily_pipeline.sh`** (runs `mf-pipeline`), **GitHub Actions** (`.github/workflows/daily-pipeline.yml`, 10:00 IST / 04:30 UTC), plus **macOS `launchd`** and **cron** examples under `deploy/` (10:00 machine local). Canonical cron string for Actions: `mf_pipeline.schedule.GITHUB_ACTIONS_CRON_UTC`. Step-by-step setup: **[SCHEDULER.md](./SCHEDULER.md)**.
 
 ---
 

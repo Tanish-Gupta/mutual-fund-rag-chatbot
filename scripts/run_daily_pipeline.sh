@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Daily Phase 5 job: ingest seed URLs + rebuild vector index (Chroma by default).
-# Intended for cron or launchd at 12:00 local time.
+# Intended for cron or launchd at 10:00 local time (see docs/SCHEDULER.md).
 #
 # Optional env:
 #   MF_PIPELINE_BROWSER=1  — use Playwright for fetch (if plain HTTP hits Cloudflare)

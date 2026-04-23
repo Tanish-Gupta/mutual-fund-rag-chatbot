@@ -8,11 +8,17 @@ from mf_index.builder import run_phase2_index
 from mf_index.paths import project_root
 from mf_ingest.config import DEFAULT_SEED_URLS
 from mf_ingest.pipeline import run_ingest
+from mf_pipeline.schedule import print_schedule_info
 
 
 def main(argv: list[str] | None = None) -> None:
     load_project_dotenv()
     p = argparse.ArgumentParser(description="Phase 5: ingest (Phase 1) then build search index (Phase 2)")
+    p.add_argument(
+        "--schedule-info",
+        action="store_true",
+        help="Print documented GitHub Actions / pipeline schedule and exit",
+    )
     p.add_argument("--browser", action="store_true", help="Use Playwright for Phase 1 fetch")
     p.add_argument("--url", action="append", dest="urls", help="Extra seed URL (repeatable)")
     p.add_argument("--no-parse", action="store_true", help="Phase 1: skip structured JSON")
@@ -24,6 +30,10 @@ def main(argv: list[str] | None = None) -> None:
     )
     p.add_argument("--pinecone-index", default=None, help="Pinecone index name override")
     args = p.parse_args(argv)
+
+    if args.schedule_info:
+        print_schedule_info()
+        return
 
     urls = list(DEFAULT_SEED_URLS)
     if args.urls:

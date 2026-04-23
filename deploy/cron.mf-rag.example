@@ -1,7 +1,7 @@
-# Daily at 12:00 — machine local time. Install with: crontab -e
+# Daily at 10:00 — machine local time. Install with: crontab -e
 # Replace /ABS/PATH/TO/Mutual Fund RAG chat Bot with your project root.
 
-0 12 * * * /bin/bash /ABS/PATH/TO/Mutual\ Fund\ RAG\ chat\ Bot/scripts/run_daily_pipeline.sh
+0 10 * * * /bin/bash /ABS/PATH/TO/Mutual\ Fund\ RAG\ chat\ Bot/scripts/run_daily_pipeline.sh
 
 # If IndMoney often returns Cloudflare to cron’s environment, use browser fetch:
-# 0 12 * * * MF_PIPELINE_BROWSER=1 /bin/bash /ABS/PATH/TO/.../scripts/run_daily_pipeline.sh
+# 0 10 * * * MF_PIPELINE_BROWSER=1 /bin/bash /ABS/PATH/TO/.../scripts/run_daily_pipeline.sh
