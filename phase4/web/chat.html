@@ -554,7 +554,7 @@
     <h2>Connection</h2>
     <div class="field">
       <label for="api">API base URL</label>
-      <input id="api" type="text" value="http://127.0.0.1:8000" autocomplete="url" />
+      <input id="api" type="text" value="" placeholder="Same site (Vercel) or http://127.0.0.1:8000" autocomplete="url" />
     </div>
     <div class="field">
       <label for="run">ingest_run_id (optional)</label>
@@ -572,6 +572,21 @@
       const sendBtn = document.getElementById("send");
       const apiInput = document.getElementById("api");
       const runInput = document.getElementById("run");
+
+      (function initApiBaseDefault() {
+        const h = window.location.hostname;
+        if (h === "127.0.0.1" || h === "localhost" || !h) {
+          if (!apiInput.value.trim()) apiInput.value = "http://127.0.0.1:8000";
+        } else {
+          apiInput.value = window.location.origin;
+        }
+      })();
+
+      function apiBase() {
+        const raw = (apiInput.value || "").trim().replace(/\/$/, "");
+        if (raw) return raw;
+        return window.location.origin;
+      }
       const drawer = document.getElementById("drawer");
       const overlay = document.getElementById("overlay");
 
@@ -597,7 +612,7 @@
       async function refreshIndexMeta() {
         const el = document.getElementById("index-updated");
         if (!el) return;
-        const base = apiInput.value.replace(/\/$/, "");
+        const base = apiBase();
         el.textContent = "Loading index date…";
         el.removeAttribute("title");
         try {
@@ -835,7 +850,7 @@
         sendBtn.disabled = true;
         showTyping();
 
-        const base = apiInput.value.replace(/\/$/, "");
+        const base = apiBase();
         const run = runInput.value.trim();
 
         try {

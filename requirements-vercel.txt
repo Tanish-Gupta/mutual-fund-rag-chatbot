@@ -1,0 +1,9 @@
+# Slim deps for Vercel serverless (chat API + lexical retrieval from chunks.jsonl).
+# For vector search + Pinecone, add: pinecone-client>=5, sentence-transformers>=2.2.2
+# and ship data/index/<run_id>/index_manifest.json (see docs/VERCEL.md).
+
+fastapi>=0.100
+uvicorn[standard]>=0.22
+pydantic>=2.0
+httpx>=0.27
+python-dotenv>=1.0

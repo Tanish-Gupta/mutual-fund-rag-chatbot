@@ -16,6 +16,8 @@ Workflow: [`.github/workflows/daily-pipeline.yml`](../.github/workflows/daily-pi
 - **Steps:** Python 3.12 → `pip install -e ".[vector]"` → `python -m mf_pipeline --index-backend chroma` (adds `--browser` when `MF_PIPELINE_BROWSER=1`).
 - **Artifacts:** uploads `data/manifests/*.json`, `data/index/*/index_manifest.json`, and `data/index/*/chunks.jsonl` (retained 14 days). Vector DB dirs under `data/index/` stay on the runner only (large); download the artifact if you need manifests/chunks for debugging.
 
+For a **hosted chat UI + API** (instead of only CI artifacts), see **[VERCEL.md](./VERCEL.md)**.
+
 **Repo settings (optional):**
 
 | Name | Type | Purpose |

@@ -2,7 +2,7 @@
 
 Facts-only Q&A over **indexed** mutual fund scheme pages (IndMoney and similar). Answers are grounded in your local vector index; **Groq** optionally rewrites replies in a natural tone. The product does **not** give investment advice, buy/sell recommendations, or personal portfolio guidance.
 
-**Live docs in repo:** [RAG architecture](docs/RAG_ARCHITECTURE.md) · [Data schema](docs/DATA_SCHEMA.md) · [Daily scheduler](docs/SCHEDULER.md)
+**Live docs in repo:** [RAG architecture](docs/RAG_ARCHITECTURE.md) · [Data schema](docs/DATA_SCHEMA.md) · [Daily scheduler](docs/SCHEDULER.md) · [Vercel deploy](docs/VERCEL.md)
 
 ## Features
 
@@ -65,7 +65,11 @@ python3 -m uvicorn mf_chat.app:app --host 127.0.0.1 --port 8000
 cd phase4/web && python3 -m http.server 8080 --bind 127.0.0.1
 ```
 
-Open **http://127.0.0.1:8080/chat.html** — set API base to `http://127.0.0.1:8000` if needed. The header shows **index last updated** from `GET /api/index-meta`.
+Open **http://127.0.0.1:8080/chat.html** — the UI defaults API base to `http://127.0.0.1:8000` on localhost. The header shows **index last updated** from `GET /api/index-meta`.
+
+### Deploy on Vercel (API + static UI)
+
+See **[docs/VERCEL.md](docs/VERCEL.md)**. Summary: connect the repo in Vercel; build uses `vercel.json` + `scripts/vercel_build.sh`; ASGI entry is root **`main.py`**. Add optional **`vercel-bundle/index/<ingest_run_id>/chunks.jsonl`** for lexical Q&A without Chroma on the server.
 
 ### Seed URLs
 

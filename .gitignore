@@ -1,5 +1,7 @@
 .env
 .env.local
+# Generated for Vercel / local static preview (see scripts/vercel_build.sh)
+public/
 data/raw/
 data/manifests/
 data/processed/
