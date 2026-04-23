@@ -69,7 +69,7 @@ Open **http://127.0.0.1:8080/chat.html** — the UI defaults API base to `http:/
 
 ### Deploy on Vercel (API + static UI)
 
-See **[docs/VERCEL.md](docs/VERCEL.md)**. Summary: connect the repo in Vercel; build uses `vercel.json` + `scripts/vercel_build.sh`; ASGI entry is root **`main.py`**. Add optional **`vercel-bundle/index/<ingest_run_id>/chunks.jsonl`** for lexical Q&A without Chroma on the server.
+See **[docs/VERCEL.md](docs/VERCEL.md)**. Summary: connect the repo in Vercel; build uses `vercel.json` + `scripts/vercel_build.sh`; ASGI entry is **`api/index.py`**. Add optional **`vercel-bundle/index/<ingest_run_id>/chunks.jsonl`** for lexical Q&A without Chroma on the server.
 
 ### Seed URLs
 

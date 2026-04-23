@@ -1,12 +1,12 @@
 # Deploy on Vercel
 
-The repo is wired for **[Vercel](https://vercel.com/)** using the official **FastAPI + `main.py`** pattern: one serverless function serves `/health`, `/api/index-meta`, and `/api/chat`; static files come from **`public/`** (filled by `scripts/vercel_build.sh` from `phase4/web/`).
+The repo is wired for **[Vercel](https://vercel.com/)** using the **FastAPI** Python runtime with **`api/index.py`** (Vercel only matches `functions` config against files under `api/`). One serverless function serves `/health`, `/api/index-meta`, and `/api/chat`; static files come from **`public/`** (filled by `scripts/vercel_build.sh` from `phase4/web/`).
 
 ## What gets deployed
 
 | Piece | How |
 |--------|-----|
-| **API** | Root [`main.py`](../main.py) adds `phase*/src` to `PYTHONPATH` and re-exports `mf_chat.app:app`. |
+| **API** | [`api/index.py`](../api/index.py) (required by Vercel’s `api/` layout) adds `phase*/src` to `PYTHONPATH` and re-exports `mf_chat.app:app`. |
 | **UI** | Build copies `phase4/web/*` → `public/` and `chat.html` → `public/index.html` (chat at `/`). |
 | **Index** | Optional: put `vercel-bundle/index/<ingest_run_id>/chunks.jsonl` in git (see [vercel-bundle/README.md](../vercel-bundle/README.md)). Build copies into `data/index/`. |
 

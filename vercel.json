@@ -4,7 +4,7 @@
   "buildCommand": "bash scripts/vercel_build.sh",
   "installCommand": "pip install -r requirements-vercel.txt",
   "functions": {
-    "main.py": {
+    "api/index.py": {
       "maxDuration": 60,
       "memory": 1024
     }
