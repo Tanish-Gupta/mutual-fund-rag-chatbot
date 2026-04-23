@@ -6,6 +6,32 @@ Phase 5 is automated by running `scripts/run_daily_pipeline.sh` once per day. It
 
 ---
 
+## GitHub Actions (cloud scheduler)
+
+Workflow: [`.github/workflows/daily-pipeline.yml`](../.github/workflows/daily-pipeline.yml)
+
+- **Triggers:** daily at **06:30 UTC** (≈ **12:00 IST**) and **manual** (`workflow_dispatch`).
+- **Steps:** Python 3.12 → `pip install -e ".[vector]"` → `python -m mf_pipeline --index-backend chroma` (adds `--browser` when `MF_PIPELINE_BROWSER=1`).
+- **Artifacts:** uploads `data/manifests/*.json`, `data/index/*/index_manifest.json`, and `data/index/*/chunks.jsonl` (retained 14 days). Vector DB dirs under `data/index/` stay on the runner only (large); download the artifact if you need manifests/chunks for debugging.
+
+**Repo settings (optional):**
+
+| Name | Type | Purpose |
+|------|------|---------|
+| `MF_PIPELINE_BROWSER` | Variable (`0` / `1`) | `1` installs Playwright + Chromium and passes `--browser` to ingest (use if IndMoney blocks plain HTTP from GitHub IPs). |
+| `HF_TOKEN` | Secret | Optional Hugging Face token for faster / higher-rate embedding model downloads. |
+
+**Git identity check (local machine):** ensure commits use the account you expect:
+
+```bash
+git config user.email          # should match your GitHub-verified email if you want clean attribution
+git remote -v                  # origin should point at github.com/<org-or-user>/<repo>.git
+gh auth status                 # optional: GitHub CLI login
+gh api user -q .login          # GitHub username (public email may be empty if hidden in profile)
+```
+
+---
+
 ## macOS — `launchd` (recommended)
 
 1. Install the LaunchAgent (replace the path with your clone; works with spaces in the path):

@@ -45,8 +45,8 @@ def test_broad_question_returns_all_hit_sources(monkeypatch, tmp_path) -> None:
     assert len(out.source_urls) == 2
 
 
-def test_named_scheme_returns_single_source(monkeypatch, tmp_path) -> None:
-    """When the user names one scheme, only that page is cited."""
+def test_named_scheme_lists_all_retrieval_sources(monkeypatch, tmp_path) -> None:
+    """Every distinct URL in the retrieval shortlist is returned as a source link."""
     root = tmp_path
     (root / "pyproject.toml").write_text("[project]\nname='t'\nversion='0'\n", encoding="utf-8")
     rid = "run-focus"
@@ -63,5 +63,6 @@ def test_named_scheme_returns_single_source(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(svc, "project_root", lambda: root)
 
     out = svc.chat("What is the risk for Edelweiss Emerging Markets Opportunities?", rid)
-    assert len(out.source_urls) == 1
-    assert out.source_urls[0] == "https://ex.com/emerging"
+    assert len(out.source_urls) == 2
+    assert "https://ex.com/emerging" in out.source_urls
+    assert "https://ex.com/europe" in out.source_urls

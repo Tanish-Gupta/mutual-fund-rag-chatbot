@@ -77,7 +77,12 @@ def fetch_url_http(url: str, timeout: float = 60.0) -> FetchResult:
     return FetchResult(url=url, status_code=r.status_code, body=body, outcome=FetchOutcome.FETCHED)
 
 
-def fetch_url_playwright(url: str, timeout_ms: int = 90_000) -> FetchResult:
+def fetch_url_playwright(
+    url: str,
+    timeout_ms: int = 90_000,
+    *,
+    wait_until: str = "domcontentloaded",
+) -> FetchResult:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as e:
@@ -89,7 +94,8 @@ def fetch_url_playwright(url: str, timeout_ms: int = 90_000) -> FetchResult:
         browser = p.chromium.launch(headless=True)
         try:
             page = browser.new_page()
-            page.goto(url, wait_until="networkidle", timeout=timeout_ms)
+            # "networkidle" often times out on IndMoney-style SPAs; domcontentloaded is enough for __NEXT_DATA__.
+            page.goto(url, wait_until=wait_until, timeout=timeout_ms)
             html = page.content()
             body = html.encode("utf-8")
         except Exception as e:

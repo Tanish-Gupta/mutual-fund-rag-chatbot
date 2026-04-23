@@ -5,6 +5,14 @@ from typing import Any
 from pathlib import Path
 
 from mf_chat.groq_client import groq_grounded_answer, is_groq_non_answer
+from mf_chat.relevance import (
+    AMC_NOT_INDEXED_ANSWER,
+    MIN_LEXICAL_OVERLAP,
+    NOT_IN_INDEX_ANSWER,
+    best_lexical_overlap,
+    query_names_amc_outside_indexed_hits,
+    retrieval_seems_relevant,
+)
 from mf_chat.source_policy import source_refs_for_hits
 from mf_chat.paths import latest_index_run_id, project_root
 from mf_chat.routing import (
@@ -151,13 +159,32 @@ def chat(message: str, ingest_run_id: str | None) -> ChatResponse:
             ingest_run_id=rid,
         )
 
+    if query_names_amc_outside_indexed_hits(msg, hits):
+        return ChatResponse(
+            answer=AMC_NOT_INDEXED_ANSWER,
+            source_urls=[],
+            sources=[],
+            ingest_run_id=rid,
+        )
+
+    used_vector = bool(manifest)
+    if not retrieval_seems_relevant(msg, hits, used_vector=used_vector):
+        source_urls, sources = source_refs_for_hits(msg, hits)
+        return ChatResponse(
+            answer=NOT_IN_INDEX_ANSWER,
+            source_urls=source_urls,
+            sources=sources,
+            ingest_run_id=rid,
+        )
+
     groq_text = groq_grounded_answer(msg, hits)
     if groq_text and not is_groq_non_answer(groq_text):
         answer = groq_text
-    else:
+    elif best_lexical_overlap(msg, hits) >= MIN_LEXICAL_OVERLAP:
         answer = answer_from_chunks(msg, hits)
+    else:
+        answer = NOT_IN_INDEX_ANSWER
 
-    # Multiple scheme URLs when the question is broad; single URL when the query names one scheme clearly.
     source_urls, sources = source_refs_for_hits(msg, hits)
 
     return ChatResponse(
