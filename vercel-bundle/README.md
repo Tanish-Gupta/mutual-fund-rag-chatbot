@@ -1,17 +1,24 @@
-# Index bundle for Vercel (optional)
+# Index bundle for Vercel
 
-To answer questions in production, the API needs **`chunks.jsonl`** (and optionally **`index_manifest.json`**) under `data/index/<ingest_run_id>/`.
+The repo ships a **checked-in** lexical index so production works without Chroma on the server:
 
-For Vercel, copy that folder **here** before deploy so `scripts/vercel_build.sh` can copy it into `data/index/` during the Vercel build (the normal `data/index/` path is gitignored).
+- **`index/5c4534f2-95a5-4a14-9402-3b2d424b99e3/chunks.jsonl`** — five Edelweiss scheme pages (merge build).  
+- **`index_manifest.json` is omitted** here so Vercel uses **lexical-only** retrieval (`requirements-vercel.txt` stays small).
 
-Example (from your machine, after `mf-pipeline`):
+`scripts/vercel_build.sh` copies `vercel-bundle/index/*` → `data/index/` on each Vercel build.
+
+### Refreshing the bundle
+
+After you run `mf-pipeline` (or `scripts/rebuild_five_funds_index.py`) locally:
 
 ```bash
-INGEST_RUN_ID="<your-uuid>"
+INGEST_RUN_ID="<new-uuid>"
 mkdir -p "vercel-bundle/index/$INGEST_RUN_ID"
 cp "data/index/$INGEST_RUN_ID/chunks.jsonl" "vercel-bundle/index/$INGEST_RUN_ID/"
-# Optional: full vector search on Vercel (add Pinecone deps + secrets — see docs/VERCEL.md)
-# cp "data/index/$INGEST_RUN_ID/index_manifest.json" "vercel-bundle/index/$INGEST_RUN_ID/"
+git add "vercel-bundle/index/$INGEST_RUN_ID/chunks.jsonl"
+# Optionally remove the old run directory under vercel-bundle/index/ to avoid shipping two copies.
 ```
 
-If you omit this bundle, the site still loads but the chatbot will report that no index is available until you add files and redeploy.
+### Full vector search on Vercel
+
+Copy **`index_manifest.json`** only if you add Pinecone + embedding deps and env vars — see **[docs/VERCEL.md](../docs/VERCEL.md)**.

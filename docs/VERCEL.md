@@ -9,7 +9,7 @@ The repo is wired for **[Vercel](https://vercel.com/)** using the **FastAPI** Py
 | **API** | [`api/index.py`](../api/index.py) (required by Vercel’s `api/` layout) adds `phase*/src` to `PYTHONPATH` and re-exports `mf_chat.app:app`. |
 | **Routing** | `vercel.json` **rewrites** send `/api/:path*` and `/health` to `/api/index` so requests hit the single FastAPI function (static files in `public/` otherwise win and return HTML, which breaks `fetch` → `json()`). |
 | **UI** | Build copies `phase4/web/*` → `public/` and `chat.html` → `public/index.html` (chat at `/`). |
-| **Index** | Optional: put `vercel-bundle/index/<ingest_run_id>/chunks.jsonl` in git (see [vercel-bundle/README.md](../vercel-bundle/README.md)). Build copies into `data/index/`. |
+| **Index** | The repo includes **`vercel-bundle/index/5c4534f2-95a5-4a14-9402-3b2d424b99e3/chunks.jsonl`** (five schemes, lexical-only). Build copies into `data/index/`. Update that folder when you re-ingest (see [vercel-bundle/README.md](../vercel-bundle/README.md)). |
 
 ## Lexical-only (recommended first deploy)
 
